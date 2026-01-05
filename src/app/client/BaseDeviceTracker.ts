@@ -63,9 +63,13 @@ export abstract class BaseDeviceTracker<DD extends BaseDeviceDescriptor, TE exte
             port = location.port;
             pathname = location.pathname;
         }
+        // Preserve access_token from current URL query string
+        const currentSearchParams = new URLSearchParams(location.search);
+        const accessToken = currentSearchParams.get('access_token');
+        const queryString = accessToken ? `?access_token=${encodeURIComponent(accessToken)}` : '';
         const hash = `#!${new URLSearchParams(q).toString()}`;
         const a = document.createElement('a');
-        a.setAttribute('href', `${protocol}//${hostname}:${port}${pathname}${hash}`);
+        a.setAttribute('href', `${protocol}//${hostname}:${port}${pathname}${queryString}${hash}`);
         a.setAttribute('rel', 'noopener noreferrer');
         a.setAttribute('target', '_blank');
         a.classList.add(`link-${q.action}`);

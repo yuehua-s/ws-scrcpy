@@ -107,6 +107,12 @@ export abstract class ManagerClient<P extends ParamsBase, TE extends EventMap> e
                 directUrl.searchParams.set('action', action);
             }
         }
+        // Preserve access_token from current URL query string for authentication
+        const currentSearchParams = new URLSearchParams(location.search);
+        const accessToken = currentSearchParams.get('access_token');
+        if (accessToken) {
+            directUrl.searchParams.set('access_token', accessToken);
+        }
         return directUrl;
     }
 
@@ -115,6 +121,12 @@ export abstract class ManagerClient<P extends ParamsBase, TE extends EventMap> e
         const localUrl = new URL(`${localProtocol}//${location.host}`);
         localUrl.searchParams.set('action', ACTION.PROXY_WS);
         localUrl.searchParams.set('ws', directUrl.toString());
+        // Preserve access_token from current URL query string for authentication
+        const currentSearchParams = new URLSearchParams(location.search);
+        const accessToken = currentSearchParams.get('access_token');
+        if (accessToken) {
+            localUrl.searchParams.set('access_token', accessToken);
+        }
         return localUrl;
     }
 
