@@ -155,6 +155,12 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
             urlObject.searchParams.set('remote', `tcp:${SERVER_PORT.toString(10)}`);
             urlObject.searchParams.set('udid', udid);
         }
+        // Preserve access_token from current URL query string for authentication
+        const currentSearchParams = new URLSearchParams(location.search);
+        const accessToken = currentSearchParams.get('access_token');
+        if (accessToken) {
+            urlObject.searchParams.set('access_token', accessToken);
+        }
         return urlObject;
     }
 
