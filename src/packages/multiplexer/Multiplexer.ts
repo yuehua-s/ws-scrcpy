@@ -3,6 +3,7 @@ import { Message } from './Message';
 import { MessageType } from './MessageType';
 import { EventClass } from './Event';
 import { CloseEventClass } from './CloseEventClass';
+import { ErrorEventClass } from './ErrorEventClass';
 import { MessageEventClass } from './MessageEventClass';
 import Util from '../../app/Util';
 
