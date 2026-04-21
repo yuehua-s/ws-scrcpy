@@ -88,15 +88,24 @@ export class StreamReceiver<P extends ParamsStream> extends ManagerClient<Params
         this.encodersSet.clear();
         const encodersCount = rest.readInt32BE(0);
         rest = rest.slice(4);
-        for (let i = 0; i < encodersCount; i++) {
-            const nameLength = rest.readInt32BE(0);
-            rest = rest.slice(4);
-            const nameBytes = rest.slice(0, nameLength);
-            rest = rest.slice(nameLength);
-            const name = Util.utf8ByteArrayToString(nameBytes);
-            this.encodersSet.add(name);
+        // Some Android images (e.g. smartrun) run a scrcpy-server that omits the encodersCount
+        // field when MediaCodec cannot enumerate any encoders, writing clientId directly instead.
+        // In that case rest is now empty (0 bytes left), so we treat the value we just read as
+        // clientId and skip encoder parsing entirely.
+        if (rest.length < 4) {
+            // encodersCount was actually clientId — no encoder list in this packet variant
+            this.clientId = encodersCount;
+        } else {
+            for (let i = 0; i < encodersCount; i++) {
+                const nameLength = rest.readInt32BE(0);
+                rest = rest.slice(4);
+                const nameBytes = rest.slice(0, nameLength);
+                rest = rest.slice(nameLength);
+                const name = Util.utf8ByteArrayToString(nameBytes);
+                this.encodersSet.add(name);
+            }
+            this.clientId = rest.readInt32BE(0);
         }
-        this.clientId = rest.readInt32BE(0);
         nameBytes = Util.filterTrailingZeroes(nameBytes);
         this.deviceName = Util.utf8ByteArrayToString(nameBytes);
         this.hasInitialInfo = true;
