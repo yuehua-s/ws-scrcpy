@@ -9,6 +9,16 @@ import { WebsocketProxy } from './mw/WebsocketProxy';
 import { HostTracker } from './mw/HostTracker';
 import { WebsocketMultiplexer } from './mw/WebsocketMultiplexer';
 
+// Global safety net: prevent any single unhandled exception from taking down the entire process.
+// This is especially important when scrcpy-server on certain Android images (e.g. smartrun)
+// sends unexpected WebSocket frames that trigger errors in Multiplexer message parsing.
+process.on('uncaughtException', (err: Error) => {
+    console.error('[ws-scrcpy] Uncaught exception (process kept alive):', err.message);
+    if (err.stack) {
+        console.error(err.stack);
+    }
+});
+
 const servicesToStart: ServiceClass[] = [HttpServer, WebSocketServer];
 
 // MWs that accept WebSocket

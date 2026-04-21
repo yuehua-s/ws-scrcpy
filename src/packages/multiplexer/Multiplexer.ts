@@ -156,8 +156,11 @@ export class Multiplexer extends TypedEmitter<MultiplexerEvents> implements WebS
                     break;
                 }
                 default:
-                    const error = new Error(`Unsupported message type: ${message.type}`);
-                    this.dispatchEvent(new ErrorEventClass('error', { error }));
+                    // Unknown message type — log and discard instead of dispatching an error event.
+                    // Dispatching an unhandled 'error' event would crash the Node.js process
+                    // (ERR_UNHANDLED_ERROR) when scrcpy-server sends unexpected data (e.g. a JSON
+                    // text frame on incompatible Android images such as smartrun).
+                    console.warn(`[Multiplexer] Unsupported message type: ${message.type} — discarding frame`);
             }
         };
 
