@@ -1,6 +1,5 @@
 import '../../../style/morebox.css';
 import { BasePlayer } from '../../player/BasePlayer';
-import { TextControlMessage } from '../../controlMessage/TextControlMessage';
 import { CommandControlMessage } from '../../controlMessage/CommandControlMessage';
 import { ControlMessage } from '../../controlMessage/ControlMessage';
 import Size from '../../Size';
@@ -40,7 +39,11 @@ export class GoogMoreBox {
         const inputWrapper = GoogMoreBox.wrap('p', [input, sendButton], moreBox);
         sendButton.onclick = () => {
             if (input.value) {
-                client.sendMessage(new TextControlMessage(input.value));
+                // Use clipboard-paste for all text input.
+                // Android's KeyCharacterMap.getEvents() only supports ASCII characters,
+                // so TYPE_TEXT (inject_text) silently fails for CJK and other non-ASCII input.
+                // Clipboard-paste (TYPE_SET_CLIPBOARD with paste=true) works universally.
+                client.sendMessage(CommandControlMessage.createSetClipboardCommand(input.value, true));
             }
         };
 
